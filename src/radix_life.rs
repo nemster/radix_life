@@ -73,6 +73,12 @@ struct ChoiceEvent {
     people_id: u64,
 }
 
+#[derive(ScryptoSbor, ScryptoEvent)]
+struct BankWithdrawEvent {
+    amount: u32,
+    people_id: u64,
+}
+
 #[blueprint]
 #[events(
     NewPeopleEvent,
@@ -85,6 +91,7 @@ struct ChoiceEvent {
     SoldObjectEvent,
     BoughtObjectEvent,
     ChoiceEvent,
+    BankWithdrawEvent,
 )]
 #[types(
     String,
@@ -118,6 +125,7 @@ mod radix_life {
             buy_coins => PUBLIC;
             give_name => PUBLIC;
             deposit_to_bank_account => PUBLIC;
+            withdraw_from_bank_account => PUBLIC;
             mortgage => PUBLIC;
             allow_rent => PUBLIC;
             rent => PUBLIC;
@@ -653,6 +661,30 @@ mod radix_life {
             coin_bucket.burn();
         }
 
+        pub fn withdraw_from_bank_account(
+            &self,
+            people_proof: Proof,
+            amount: u32,
+        ) {
+            let non_fungible = people_proof.check_with_message(
+                self.people_resource_manager.address(),
+                "Wrong NFT",
+            )
+            .as_non_fungible()
+            .non_fungible::<PeopleData>();
+            let people_id = match non_fungible.local_id() {
+                NonFungibleLocalId::Integer(id) => id.value(),
+                _ => Runtime::panic("Should not happen".to_string()),
+            };
+
+            Runtime::emit_event(
+                BankWithdrawEvent {
+                    amount: amount,
+                    people_id: people_id,
+                }
+            );
+        }
+
         pub fn update_people_data(
             &self,
             people_id: u64,
@@ -1035,7 +1067,7 @@ mod radix_life {
             people_proof: Proof,
             choice: String,
             coin_bucket: Option<Bucket>,
-        ) {
+        ) -> Option<Bucket> {
             let non_fungible = people_proof.check_with_message(
                 self.people_resource_manager.address(),
                 "Wrong NFT",
@@ -1050,16 +1082,21 @@ mod radix_life {
             let price_ref = self.choices.get(&choice).expect("Choice not found");
             let price = price_ref.deref();
 
-            if *price > 0 {
-                coin_bucket.expect("Missing payment").take(Decimal::from(*price)).burn();
-            }
-
             Runtime::emit_event(
                 ChoiceEvent {
                     choice: choice,
                     people_id: people_id,
                 }
             );
+
+            if *price > 0 {
+                let mut coin_bucket = coin_bucket.expect("Missing payment");
+                coin_bucket.take(Decimal::from(*price)).burn();
+
+                Some(coin_bucket)
+            } else {
+                None
+            }
         }
     }
 }
