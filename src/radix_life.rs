@@ -95,6 +95,11 @@ struct SoldPeopleEvent {
     price: u32, 
 }
 
+#[derive(ScryptoSbor, ScryptoEvent)]
+struct BoughtPeopleEvent {
+    people_id: u64,
+}
+
 #[blueprint]
 #[events(
     NewPeopleEvent,
@@ -108,6 +113,8 @@ struct SoldPeopleEvent {
     BoughtObjectEvent,
     ChoiceEvent,
     BankWithdrawEvent,
+    SoldPeopleEvent,
+    BoughtPeopleEvent,
 )]
 #[types(
     String,
@@ -154,8 +161,8 @@ mod radix_life {
             close_object_sale => PUBLIC;
             make_choice => PUBLIC;
             sell_people => PUBLIC;
-            //TODO: buy_people => PUBLIC;
-            //TODO: close_people_sale => PUBLIC;
+            buy_people => PUBLIC;
+            close_people_sale => PUBLIC;
         }
     }
 
@@ -1242,6 +1249,57 @@ mod radix_life {
                     key_image_url: non_fungible.data().key_image_url,
                 }
             )
+        }
+
+        pub fn buy_people(
+            &mut self,
+            people_id: u64,
+            mut coin_bucket: Bucket,
+        ) -> (
+            NonFungibleBucket,
+            Bucket,
+        ) {
+            assert!(
+                coin_bucket.resource_address() == self.coin_resource_manager.address(),
+                "Wrong coin",
+            );
+
+            let nf_people_id = NonFungibleLocalId::integer(people_id);
+            let non_fungible_data = self.sold_people_resource_manager.get_non_fungible_data::<SoldPeopleReceipt>(
+                &nf_people_id
+            );
+
+            coin_bucket.take(Decimal::from(non_fungible_data.price)).burn();
+
+            Runtime::emit_event(
+                BoughtPeopleEvent {
+                    people_id: people_id,
+                }
+            );
+
+            (
+                self.people_vault.take_non_fungible(&nf_people_id),
+                coin_bucket,
+            )
+        }
+
+        pub fn close_people_sale(
+            &mut self,
+            sold_people_bucket: Bucket,
+        ) -> Bucket {
+            assert!(
+                sold_people_bucket.resource_address() == self.sold_people_resource_manager.address(),
+                "Wrong NFT",
+            );
+            let non_fungible = sold_people_bucket.as_non_fungible().non_fungible::<SoldPeopleReceipt>();
+            let non_fungible_data = non_fungible.data();
+
+            sold_people_bucket.burn();
+
+            match self.people_vault.contains_non_fungible(non_fungible.local_id()) {
+                false => self.coin_resource_manager.mint(non_fungible_data.price).into(),
+                true => self.people_vault.take_non_fungible(non_fungible.local_id()).into(),
+            }
         }
     }
 }
