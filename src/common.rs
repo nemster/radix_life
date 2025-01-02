@@ -10,11 +10,7 @@ pub struct PeopleData {
     #[mutable]
     pub gender: String,
     #[mutable]
-    pub age_range: String,
-    #[mutable]
     pub occupation: String,
-    #[mutable]
-    pub marital_status: String,
     #[mutable]
     pub partner: u64,
     #[mutable]
@@ -38,12 +34,13 @@ pub enum PriceRange {
 pub struct ObjectData {
     pub name: String,
     pub category: String,
-    pub price: u32,
     pub price_range: PriceRange,
     #[mutable]
     pub mortgaged: bool,
     #[mutable]
     pub rent_allowed: bool,
+    #[mutable]
+    pub daily_rent_price: u32,
     #[mutable]
     pub rent_to: u64,
     pub key_image_url: Url,
@@ -56,3 +53,9 @@ pub struct SoldObjectReceipt {
     pub price: u32,
     pub key_image_url: Url,
 }
+
+#[derive(ScryptoSbor, NonFungibleData)]
+pub struct SoldPeopleReceipt {
+    pub price: u32,
+    pub key_image_url: Url,
+} 
