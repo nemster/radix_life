@@ -2,8 +2,6 @@ use scrypto::prelude::*;
 use std::ops::Deref;
 use crate::common::*;
 
-//TODO: secondary market fees?
-
 #[derive(ScryptoSbor)]
 struct ObjectCategory {
     resource_manager: NonFungibleResourceManager,
@@ -391,7 +389,10 @@ mod radix_life {
                 minter_updater => rule!(require(self.owner_badge_address));
             ))
             .non_fungible_data_update_roles(non_fungible_data_update_roles!(
-                non_fungible_data_updater => rule!(require(self.updater_badge_address));
+                non_fungible_data_updater => rule!(require(CompositeRequirement::AnyOf(vec![
+                    global_caller(Runtime::global_address()).into(),
+                    require(self.updater_badge_address),
+                ])));
                 non_fungible_data_updater_updater => rule!(require(self.owner_badge_address));
             ))
             .burn_roles(burn_roles!(
