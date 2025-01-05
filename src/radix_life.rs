@@ -143,6 +143,7 @@ mod radix_life {
             new_object => restrict_to: [updater];
             update_people_data => restrict_to: [updater];
             update_object_data => restrict_to: [updater];
+            do_terminate_rent => restrict_to: [updater];
 
             buy_egg => PUBLIC;
             buy_objects => PUBLIC;
@@ -389,10 +390,7 @@ mod radix_life {
                 minter_updater => rule!(require(self.owner_badge_address));
             ))
             .non_fungible_data_update_roles(non_fungible_data_update_roles!(
-                non_fungible_data_updater => rule!(require(CompositeRequirement::AnyOf(vec![
-                    global_caller(Runtime::global_address()).into(),
-                    require(self.updater_badge_address),
-                ])));
+                non_fungible_data_updater => rule!(require(global_caller(Runtime::global_address())));
                 non_fungible_data_updater_updater => rule!(require(self.owner_badge_address));
             ))
             .burn_roles(burn_roles!(
@@ -1020,6 +1018,26 @@ mod radix_life {
                 _ => Runtime::panic("Should not happen".to_string()),
             };
 
+            self.do_terminate_rent(
+                category,
+                object_id,
+                people_id,
+            );
+
+            Runtime::emit_event(
+                TerminateRentEvent {
+                    object_id: object_id,
+                    people_id: people_id,
+                }
+            );
+        }
+
+        pub fn do_terminate_rent(
+            &self,
+            category: String,
+            object_id: u64,
+            people_id: u64,
+        ) {
             let object_category = self.object_categories.get(&category).expect("Category not found");
 
             let nf_object_id = NonFungibleLocalId::Integer(object_id.into());
@@ -1038,13 +1056,6 @@ mod radix_life {
                     0,
                 );
             }
-
-            Runtime::emit_event(
-                TerminateRentEvent {
-                    object_id: object_id,
-                    people_id: people_id,
-                }
-            );
         }
 
         pub fn sell_object(
