@@ -23,17 +23,9 @@ pub struct PeopleData {
     pub key_image_url: Url,
 }
 
-#[derive(ScryptoSbor, Clone)]
-pub enum PriceRange {
-    Cheap,
-    Normal,
-    Luxury,
-}
-
 #[derive(ScryptoSbor, NonFungibleData, Clone)]
 pub struct ObjectData {
     pub name: String,
-    pub price_range: PriceRange,
     #[mutable]
     pub mortgaged: bool,
     #[mutable]

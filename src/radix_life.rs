@@ -8,7 +8,6 @@ struct ObjectTypeData {
     can_be_mortgaged: bool,
     can_be_rent: bool,
     price: u32,
-    price_range: PriceRange,
     key_image_url: Url,
 }
 
@@ -387,20 +386,11 @@ mod radix_life {
             &mut self,
             name: String,
             price: u32,
-            mut price_range: String,
             key_image_url: String,
             can_be_bought: bool,
             can_be_mortgaged: bool,
             can_be_rent: bool,
         ) {
-            price_range.make_ascii_lowercase();
-            let price_range: PriceRange = match price_range.trim() {
-                "cheap" => PriceRange::Cheap,
-                "normal" => PriceRange::Normal,
-                "luxury" => PriceRange::Luxury,
-                _ => Runtime::panic("Wrong price range".to_string()),
-            };
-
             self.object_types.insert(
                 name,
                 ObjectTypeData {
@@ -408,7 +398,6 @@ mod radix_life {
                     can_be_mortgaged: can_be_mortgaged,
                     can_be_rent: can_be_rent,
                     price: price,
-                    price_range: price_range,
                     key_image_url: UncheckedUrl(key_image_url),
                 }
             );
@@ -495,7 +484,6 @@ mod radix_life {
                 &NonFungibleLocalId::integer(self.last_people_id.into()),
                 ObjectData {
                     name: name,
-                    price_range: object_type.price_range.clone(),
                     mortgaged: mortgaged,
                     rent_allowed: false,
                     daily_rent_price: 0,
@@ -589,7 +577,6 @@ mod radix_life {
                         &NonFungibleLocalId::integer(id.into()),
                         ObjectData {
                             name: name.clone(),
-                            price_range: object_type.price_range.clone(),
                             mortgaged: mortgaged,
                             rent_allowed: false,
                             daily_rent_price: 0,
