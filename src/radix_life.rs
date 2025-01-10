@@ -3,13 +3,6 @@ use std::ops::Deref;
 use crate::common::*;
 
 #[derive(ScryptoSbor)]
-struct ObjectCategory {
-    resource_manager: NonFungibleResourceManager,
-    object_types: KeyValueStore<String, ObjectTypeData>,
-    used_objects_vault: NonFungibleVault,
-}
-
-#[derive(ScryptoSbor)]
 struct ObjectTypeData {
     can_be_bought: bool,
     can_be_mortgaged: bool,
@@ -117,7 +110,6 @@ struct BoughtPeopleEvent {
     String,
     PeopleData,
     ObjectData,
-    ObjectCategory,
     ObjectTypeData,
     u64,
     SoldObjectReceipt,
@@ -131,7 +123,6 @@ mod radix_life {
             updater => updatable_by: [OWNER];
         },
         methods {
-            add_object_category => restrict_to: [OWNER];
             add_object_type => restrict_to: [OWNER];
             withdraw_xrd => restrict_to: [OWNER];
             update_coin_xrd_price => restrict_to: [OWNER];
@@ -170,19 +161,20 @@ mod radix_life {
         last_people_id: u64,
         people_resource_manager: NonFungibleResourceManager,
         last_object_id: u64,
-        object_categories: KeyValueStore<String, ObjectCategory>,
         coin_resource_manager: FungibleResourceManager,
         hatch_time: i64,
         egg_image_url: Url,
         account_locker: Global<AccountLocker>,
-        owner_badge_address: ResourceAddress,
-        updater_badge_address: ResourceAddress,
         xrd_vault: Vault,
         sold_objects_resource_manager: NonFungibleResourceManager,
         choices: KeyValueStore<String, u32>,
         people_vault: NonFungibleVault,
         people_prices: KeyValueStore<u64, u32>,
         sold_people_resource_manager: NonFungibleResourceManager,
+        object_resource_manager: NonFungibleResourceManager,
+        object_types: KeyValueStore<String, ObjectTypeData>,
+        used_objects_vault: NonFungibleVault,
+
     }
 
     impl RadixLife {
@@ -231,7 +223,7 @@ mod radix_life {
                     metadata_locker_updater => rule!(require(owner_badge_address));
                 },
                 init {
-                    "name" => "RadixLife People", updatable;
+                    "name" => "RadixLife people", updatable;
                 }
             ))
             .mint_roles(mint_roles!(
@@ -259,7 +251,7 @@ mod radix_life {
                 },
                 init {
                     "symbol" => "RLC", updatable;
-                    "name" => "RadixLife Coin", updatable;
+                    "name" => "RadixLife coin", updatable;
                 }
             ))
             .mint_roles(mint_roles!(
@@ -292,7 +284,7 @@ mod radix_life {
                     metadata_locker_updater => rule!(require(owner_badge_address));
                 },
                 init {
-                    "name" => "Sold RadixLife Object", updatable;
+                    "name" => "RadixLife object on sale", updatable;
                 }
             ))
             .mint_roles(mint_roles!(
@@ -316,7 +308,7 @@ mod radix_life {
                     metadata_locker_updater => rule!(require(owner_badge_address));
                 },
                 init {
-                    "name" => "Sold RadixLife People", updatable;
+                    "name" => "RadixLife people on sale", updatable;
                 }
             ))
             .mint_roles(mint_roles!(
@@ -329,6 +321,38 @@ mod radix_life {
             ))
             .create_with_no_initial_supply();
 
+            let object_resource_manager = ResourceBuilder::new_integer_non_fungible_with_registered_type::<ObjectData>(
+                OwnerRole::Updatable(rule!(require(owner_badge_address)))
+            )
+            .metadata(metadata!(
+                roles {
+                    metadata_setter => rule!(require(owner_badge_address));
+                    metadata_setter_updater => rule!(require(owner_badge_address));
+                    metadata_locker => rule!(require(owner_badge_address));
+                    metadata_locker_updater => rule!(require(owner_badge_address));
+                },
+                init {
+                    "name" => "RadixLife object", updatable;
+                }
+            ))
+            .mint_roles(mint_roles!(
+                minter => rule!(require(global_caller(component_address)));
+                minter_updater => rule!(require(owner_badge_address));
+            ))
+            .non_fungible_data_update_roles(non_fungible_data_update_roles!(
+                non_fungible_data_updater => rule!(require(global_caller(component_address)));
+                non_fungible_data_updater_updater => rule!(require(owner_badge_address));
+            ))
+            .burn_roles(burn_roles!(
+                burner => rule!(require(updater_badge_address));
+                burner_updater => rule!(require(owner_badge_address));
+            ))
+            .recall_roles(recall_roles!(
+                recaller => rule!(require(updater_badge_address));
+                recaller_updater => rule!(require(owner_badge_address));
+            ))
+            .create_with_no_initial_supply();
+
             Self {
                 eggs_on_sale: eggs_on_sale,
                 egg_xrd_price: egg_xrd_price,
@@ -336,20 +360,19 @@ mod radix_life {
                 last_people_id: 0,
                 people_resource_manager: people_resource_manager,
                 last_object_id: 0,
-                object_categories: KeyValueStore::new_with_registered_type(),
                 coin_resource_manager: coin_resource_manager,
                 hatch_time: hatch_time,
                 egg_image_url: UncheckedUrl(egg_image_url),
                 account_locker: account_locker,
-                owner_badge_address: owner_badge_address,
-                updater_badge_address: updater_badge_address,
                 xrd_vault: Vault::new(XRD),
                 sold_objects_resource_manager: sold_objects_resource_manager,
                 choices: KeyValueStore::new_with_registered_type(),
                 people_vault: NonFungibleVault::new(people_resource_manager.address()),
                 people_prices: KeyValueStore::new_with_registered_type(),
                 sold_people_resource_manager: sold_people_resource_manager,
-
+                object_resource_manager: object_resource_manager,
+                object_types: KeyValueStore::new_with_registered_type(),
+                used_objects_vault: NonFungibleVault::new(object_resource_manager.address()),
             }
             .instantiate()
             .prepare_to_globalize(OwnerRole::Updatable(rule!(require(owner_badge_address))))
@@ -360,60 +383,9 @@ mod radix_life {
             .globalize()
         }
 
-        pub fn add_object_category(
-            &mut self,
-            name: String,
-        ) {
-            assert!(
-                self.object_categories.get(&name).is_none(),
-                "Category already exists",
-            );
-
-            let resource_manager = ResourceBuilder::new_integer_non_fungible_with_registered_type::<ObjectData>(
-                OwnerRole::Updatable(rule!(require(self.owner_badge_address)))
-            )
-            .metadata(metadata!(
-                roles {
-                    metadata_setter => rule!(require(self.owner_badge_address));
-                    metadata_setter_updater => rule!(require(self.owner_badge_address));
-                    metadata_locker => rule!(require(self.owner_badge_address));
-                    metadata_locker_updater => rule!(require(self.owner_badge_address));
-                },
-                init {
-                    "name" => "RadixLife ".to_string() + &name, updatable;
-                }
-            ))
-            .mint_roles(mint_roles!(
-                minter => rule!(require(global_caller(Runtime::global_address())));
-                minter_updater => rule!(require(self.owner_badge_address));
-            ))
-            .non_fungible_data_update_roles(non_fungible_data_update_roles!(
-                non_fungible_data_updater => rule!(require(global_caller(Runtime::global_address())));
-                non_fungible_data_updater_updater => rule!(require(self.owner_badge_address));
-            ))
-            .burn_roles(burn_roles!(
-                burner => rule!(require(self.updater_badge_address));
-                burner_updater => rule!(require(self.owner_badge_address));
-            ))
-            .recall_roles(recall_roles!(
-                recaller => rule!(require(self.updater_badge_address));
-                recaller_updater => rule!(require(self.owner_badge_address));
-            ))
-            .create_with_no_initial_supply();
-
-            let category = ObjectCategory {
-                resource_manager: resource_manager,
-                object_types: KeyValueStore::new_with_registered_type(),
-                used_objects_vault: NonFungibleVault::new(resource_manager.address()),
-            };
-
-            self.object_categories.insert(name, category);
-        }
-
         pub fn add_object_type(
             &mut self,
             name: String,
-            category: String,
             price: u32,
             mut price_range: String,
             key_image_url: String,
@@ -421,8 +393,6 @@ mod radix_life {
             can_be_mortgaged: bool,
             can_be_rent: bool,
         ) {
-            let object_category = self.object_categories.get(&category).expect("Category not found");
-
             price_range.make_ascii_lowercase();
             let price_range: PriceRange = match price_range.trim() {
                 "cheap" => PriceRange::Cheap,
@@ -431,7 +401,7 @@ mod radix_life {
                 _ => Runtime::panic("Wrong price range".to_string()),
             };
 
-            object_category.object_types.insert(
+            self.object_types.insert(
                 name,
                 ObjectTypeData {
                     can_be_bought: can_be_bought,
@@ -514,20 +484,17 @@ mod radix_life {
         pub fn new_object(
             &mut self,
             name: String,
-            category: String,
             mortgaged: bool,
             account: Global<Account>,
         ) {
-            let object_category = self.object_categories.get(&category).expect("Category not found");
-            let object_type = object_category.object_types.get(&name).expect("Object not found");
+            let object_type = self.object_types.get(&name).expect("Object not found");
 
             self.last_object_id += 1;
 
-            let object_bucket = object_category.resource_manager.mint_non_fungible(
+            let object_bucket = self.object_resource_manager.mint_non_fungible(
                 &NonFungibleLocalId::integer(self.last_people_id.into()),
                 ObjectData {
                     name: name,
-                    category: category,
                     price_range: object_type.price_range.clone(),
                     mortgaged: mortgaged,
                     rent_allowed: false,
@@ -577,7 +544,6 @@ mod radix_life {
             &mut self,
             mut coin_bucket: Bucket,
             name: String,
-            category: String,
             amount: u8,
             mortgaged: bool,
         ) -> (
@@ -593,8 +559,7 @@ mod radix_life {
                 "Can't buy zero objects",
             );
 
-            let object_category = self.object_categories.get(&category).expect("Category not found");
-            let object_type = object_category.object_types.get(&name).expect("Object not found");
+            let object_type = self.object_types.get(&name).expect("Object not found");
 
             assert!(
                 object_type.can_be_bought,
@@ -617,14 +582,13 @@ mod radix_life {
 
             let first = self.last_object_id + 1;
             self.last_object_id += amount as u64;
-            let mut objects_bucket = NonFungibleBucket::new(object_category.resource_manager.address());
+            let mut objects_bucket = NonFungibleBucket::new(self.object_resource_manager.address());
             for id in first..=self.last_object_id {
                 objects_bucket.put(
-                    object_category.resource_manager.mint_non_fungible(
+                    self.object_resource_manager.mint_non_fungible(
                         &NonFungibleLocalId::integer(id.into()),
                         ObjectData {
                             name: name.clone(),
-                            category: category.clone(),
                             price_range: object_type.price_range.clone(),
                             mortgaged: mortgaged,
                             rent_allowed: false,
@@ -806,16 +770,13 @@ mod radix_life {
         pub fn update_object_data(
             &self,
             object_id: u64,
-            category: String,
             mortgaged: Option<bool>,
             rent_to: Option<u64>,
         ) {
-            let object_category = self.object_categories.get(&category).expect("Category not found");
-
             match mortgaged {
                 None => {},
                 Some(mortgaged) => {
-                    object_category.resource_manager.update_non_fungible_data(
+                    self.object_resource_manager.update_non_fungible_data(
                         &NonFungibleLocalId::integer(object_id.into()),
                         "mortgaged",
                         mortgaged
@@ -826,7 +787,7 @@ mod radix_life {
             match rent_to {
                 None => {},
                 Some(rent_to) => {
-                    object_category.resource_manager.update_non_fungible_data(
+                    self.object_resource_manager.update_non_fungible_data(
                         &NonFungibleLocalId::integer(object_id.into()),
                         "rent_to",
                         rent_to
@@ -840,15 +801,15 @@ mod radix_life {
             object_proof: Proof,
             deposit_account: Option<u64>,
         ) -> Option<FungibleBucket> {
-            let non_fungible = object_proof.clone().skip_checking().as_non_fungible().non_fungible::<ObjectData>();
+            let non_fungible = object_proof.check_with_message(
+                self.object_resource_manager.address(),
+                "Wrong NFT",
+            )
+            .as_non_fungible()
+            .non_fungible::<ObjectData>();
             let non_fungible_data = non_fungible.data();
-            let object_category = self.object_categories.get(&non_fungible_data.category).expect("Category not found");
-            let object_type = object_category.object_types.get(&non_fungible_data.name).expect("Object not found");
 
-            object_proof.check_with_message(
-                object_category.resource_manager.address(),
-                "Wrong proof",
-            );
+            let object_type = self.object_types.get(&non_fungible_data.name).expect("Object not found");
 
             assert!(
                 object_type.can_be_mortgaged,
@@ -859,7 +820,7 @@ mod radix_life {
                 "Object already mortgaged",
             );
 
-            object_category.resource_manager.update_non_fungible_data(
+            self.object_resource_manager.update_non_fungible_data(
                 non_fungible.local_id(),
                 "mortgaged",
                 true
@@ -897,15 +858,15 @@ mod radix_life {
             daily_price: Option<u32>,
             account: Option<u64>,
         ) {
-            let non_fungible = object_proof.clone().skip_checking().as_non_fungible().non_fungible::<ObjectData>();
+            let non_fungible = object_proof.check_with_message(
+                self.object_resource_manager.address(),
+                "Wrong NFT",
+            )
+            .as_non_fungible()
+            .non_fungible::<ObjectData>();
             let non_fungible_data = non_fungible.data();
-            let object_category = self.object_categories.get(&non_fungible_data.category).expect("Category not found");
-            let object_type = object_category.object_types.get(&non_fungible_data.name).expect("Object not found");
 
-            object_proof.check_with_message(
-                object_category.resource_manager.address(),
-                "Wrong proof",
-            );
+            let object_type = self.object_types.get(&non_fungible_data.name).expect("Object not found");
 
             assert!(
                 object_type.can_be_rent,
@@ -917,22 +878,20 @@ mod radix_life {
                 "Can't update price on already rent objects",
             );
 
-            object_category.resource_manager.update_non_fungible_data(
+            self.object_resource_manager.update_non_fungible_data(
                 non_fungible.local_id(),
                 "rent_allowed",
                 allow
             );
-            object_category.resource_manager.update_non_fungible_data(
+            self.object_resource_manager.update_non_fungible_data(
                 non_fungible.local_id(),
                 "daily_rent_price",
                 daily_price
             );
 
-            let object_id = RadixLife::get_u64_id(non_fungible.local_id());
-
             Runtime::emit_event(
                 AllowRentEvent {
-                    object_id: object_id,
+                    object_id: RadixLife::get_u64_id(non_fungible.local_id()),
                     allow: allow,
                     daily_price: daily_price,
                     account: account,
@@ -943,7 +902,6 @@ mod radix_life {
         pub fn rent(
             &self,
             people_proof: Proof,
-            category: String,
             name: String,
             object_id: u64,
         ) {
@@ -958,9 +916,7 @@ mod radix_life {
                 _ => Runtime::panic("Should not happen".to_string()),
             };
 
-            let object_category = self.object_categories.get(&category).expect("Category not found");
-
-            let object_type = object_category.object_types.get(&name).expect("Object not found");
+            let object_type = self.object_types.get(&name).expect("Object not found");
             assert!(
                 object_type.can_be_rent,
                 "This object can't be rent",
@@ -969,8 +925,8 @@ mod radix_life {
             let nf_object_id = NonFungibleLocalId::Integer(object_id.into());
 
             // If is possible to create offchain objects, without minting and NFT, and rent them
-            if object_category.resource_manager.non_fungible_exists(&nf_object_id) {
-                let non_fungible_data = object_category.resource_manager.get_non_fungible_data::<ObjectData>(&nf_object_id);
+            if self.object_resource_manager.non_fungible_exists(&nf_object_id) {
+                let non_fungible_data = self.object_resource_manager.get_non_fungible_data::<ObjectData>(&nf_object_id);
                 assert!(
                     non_fungible_data.rent_allowed,
                     "Object not for rent",
@@ -984,7 +940,7 @@ mod radix_life {
                     "Wrong name"
                 );
 
-                object_category.resource_manager.update_non_fungible_data(
+                self.object_resource_manager.update_non_fungible_data(
                     &nf_object_id,
                     "rent_to",
                     people_id,
@@ -1002,7 +958,6 @@ mod radix_life {
         pub fn terminate_rent(
             &self,
             people_proof: Proof,
-            category: String,
             object_id: u64,
         ) {
             let non_fungible = people_proof.check_with_message(
@@ -1016,19 +971,17 @@ mod radix_life {
                 _ => Runtime::panic("Should not happen".to_string()),
             };
 
-            let object_category = self.object_categories.get(&category).expect("Category not found");
-
             let nf_object_id = NonFungibleLocalId::Integer(object_id.into());
 
             // If is possible to create offchain objects, without minting and NFT, and rent them
-            if object_category.resource_manager.non_fungible_exists(&nf_object_id) {
-                let non_fungible_data = object_category.resource_manager.get_non_fungible_data::<ObjectData>(&nf_object_id);
+            if self.object_resource_manager.non_fungible_exists(&nf_object_id) {
+                let non_fungible_data = self.object_resource_manager.get_non_fungible_data::<ObjectData>(&nf_object_id);
                 assert!(
                     non_fungible_data.rent_to == people_id,
                     "Object not rent to you",
                 );
 
-                object_category.resource_manager.update_non_fungible_data(
+                self.object_resource_manager.update_non_fungible_data(
                     &nf_object_id,
                     "rent_to",
                     0,
@@ -1054,12 +1007,11 @@ mod radix_life {
             };
 
             let non_fungible_data = non_fungible.data();
-            let mut object_category = self.object_categories.get_mut(&non_fungible_data.category).expect("Category not found");
             assert!(
-                object_category.resource_manager.address() == object_bucket.resource_address(),
+                self.object_resource_manager.address() == object_bucket.resource_address(),
                 "Wrong NFT",
             );
-            object_category.used_objects_vault.put(object_bucket);
+            self.used_objects_vault.put(object_bucket);
 
             Runtime::emit_event(
                 SoldObjectEvent {
@@ -1075,7 +1027,6 @@ mod radix_life {
                 &NonFungibleLocalId::integer(object_id.into()),
                 SoldObjectReceipt {
                     name: non_fungible_data.name,
-                    category: non_fungible_data.category,
                     price: price,
                     key_image_url: non_fungible_data.key_image_url,
                 }
@@ -1102,8 +1053,6 @@ mod radix_life {
 
             coin_bucket.take(Decimal::from(non_fungible_data.price)).burn();
 
-            let mut object_category = self.object_categories.get_mut(&non_fungible_data.category).unwrap();
-
             Runtime::emit_event(
                 BoughtObjectEvent {
                     object_id: object_id,
@@ -1111,7 +1060,7 @@ mod radix_life {
             );
 
             (
-                object_category.used_objects_vault.take_non_fungible(&nf_object_id),
+                self.used_objects_vault.take_non_fungible(&nf_object_id),
                 coin_bucket,
             )
         }
@@ -1129,10 +1078,9 @@ mod radix_life {
 
             sold_object_bucket.burn();
 
-            let mut object_category = self.object_categories.get_mut(&non_fungible_data.category).unwrap();
-            match object_category.used_objects_vault.contains_non_fungible(non_fungible.local_id()) {
+            match self.used_objects_vault.contains_non_fungible(non_fungible.local_id()) {
                 false => self.coin_resource_manager.mint(non_fungible_data.price).into(),
-                true => object_category.used_objects_vault.take_non_fungible(non_fungible.local_id()).into(),
+                true => self.used_objects_vault.take_non_fungible(non_fungible.local_id()).into(),
             }
         }
 
@@ -1152,14 +1100,12 @@ mod radix_life {
         pub fn update_object_type(
             &mut self,
             name: String,
-            category: String,
             price: u32,
             can_be_bought: bool,
             can_be_mortgaged: bool,
             can_be_rent: bool,
         ) {
-            let mut object_category = self.object_categories.get_mut(&category).expect("Category not found");
-            let mut object_type = object_category.object_types.get_mut(&name).expect("Object not found");
+            let mut object_type = self.object_types.get_mut(&name).expect("Object not found");
 
             object_type.price = price;
             object_type.can_be_bought = can_be_bought;

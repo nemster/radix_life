@@ -33,7 +33,6 @@ pub enum PriceRange {
 #[derive(ScryptoSbor, NonFungibleData, Clone)]
 pub struct ObjectData {
     pub name: String,
-    pub category: String,
     pub price_range: PriceRange,
     #[mutable]
     pub mortgaged: bool,
@@ -49,7 +48,6 @@ pub struct ObjectData {
 #[derive(ScryptoSbor, NonFungibleData)]
 pub struct SoldObjectReceipt {
     pub name: String,
-    pub category: String,
     pub price: u32,
     pub key_image_url: Url,
 }
