@@ -39,13 +39,14 @@ pub struct ObjectData {
 
 #[derive(ScryptoSbor, NonFungibleData)]
 pub struct SoldObjectReceipt {
-    pub name: String,
+    pub object_id: u64,
     pub price: u32,
     pub key_image_url: Url,
 }
 
 #[derive(ScryptoSbor, NonFungibleData)]
 pub struct SoldPeopleReceipt {
+    pub people_id: u64,
     pub price: u32,
     pub key_image_url: Url,
 } 

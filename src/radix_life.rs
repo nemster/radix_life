@@ -173,7 +173,7 @@ mod radix_life {
         object_resource_manager: NonFungibleResourceManager,
         object_types: KeyValueStore<String, ObjectTypeData>,
         used_objects_vault: NonFungibleVault,
-
+        last_receipt_id: u64,
     }
 
     impl RadixLife {
@@ -372,6 +372,7 @@ mod radix_life {
                 object_resource_manager: object_resource_manager,
                 object_types: KeyValueStore::new_with_registered_type(),
                 used_objects_vault: NonFungibleVault::new(object_resource_manager.address()),
+                last_receipt_id: 0,
             }
             .instantiate()
             .prepare_to_globalize(OwnerRole::Updatable(rule!(require(owner_badge_address))))
@@ -1006,14 +1007,13 @@ mod radix_life {
                     price: price,
                 }
             );
-           
-            // SoldObjectReceipt NFT has the same local id as the object on sale.
-            // TODO: verify that is possible to mint-burn-mint again an NFT with the same local id so
-            // that an object can be sold more than once.
+          
+            self.last_receipt_id += 1;
+
             self.sold_objects_resource_manager.mint_non_fungible(
-                &NonFungibleLocalId::integer(object_id.into()),
+                &NonFungibleLocalId::integer(self.last_receipt_id.into()),
                 SoldObjectReceipt {
-                    name: non_fungible_data.name,
+                    object_id: object_id,
                     price: price,
                     key_image_url: non_fungible_data.key_image_url,
                 }
@@ -1063,11 +1063,13 @@ mod radix_life {
             let non_fungible = sold_object_bucket.as_non_fungible().non_fungible::<SoldObjectReceipt>();
             let non_fungible_data = non_fungible.data();
 
+            let nf_object_id = NonFungibleLocalId::integer(non_fungible_data.object_id);
+
             sold_object_bucket.burn();
 
-            match self.used_objects_vault.contains_non_fungible(non_fungible.local_id()) {
+            match self.used_objects_vault.contains_non_fungible(&nf_object_id) {
                 false => self.coin_resource_manager.mint(non_fungible_data.price).into(),
-                true => self.used_objects_vault.take_non_fungible(non_fungible.local_id()).into(),
+                true => self.used_objects_vault.take_non_fungible(&nf_object_id).into(),
             }
         }
 
@@ -1167,13 +1169,13 @@ mod radix_life {
                     price: price,
                 }
             );
-         
-            // SoldPeopleReceipt NFT has the same local id as the people on sale.
-            // TODO: verify that is possible to mint-burn-mint again an NFT with the same local id so
-            // that an object can be sold more than once.
+        
+            self.last_receipt_id += 1;
+
             self.sold_people_resource_manager.mint_non_fungible(
-                &NonFungibleLocalId::integer(people_id.into()),
+                &NonFungibleLocalId::integer(self.last_receipt_id.into()),
                 SoldPeopleReceipt {
+                    people_id: people_id,
                     price: price,
                     key_image_url: non_fungible.data().key_image_url,
                 }
@@ -1223,11 +1225,13 @@ mod radix_life {
             let non_fungible = sold_people_bucket.as_non_fungible().non_fungible::<SoldPeopleReceipt>();
             let non_fungible_data = non_fungible.data();
 
+            let nf_people_id = NonFungibleLocalId::integer(non_fungible_data.people_id);
+
             sold_people_bucket.burn();
 
-            match self.people_vault.contains_non_fungible(non_fungible.local_id()) {
+            match self.people_vault.contains_non_fungible(&nf_people_id) {
                 false => self.coin_resource_manager.mint(non_fungible_data.price).into(),
-                true => self.people_vault.take_non_fungible(non_fungible.local_id()).into(),
+                true => self.people_vault.take_non_fungible(&nf_people_id).into(),
             }
         }
     }
