@@ -70,6 +70,7 @@ struct BoughtObjectEvent {
 struct ChoiceEvent {
     choice: String,
     people_id: u64,
+    number: u64,
 }
 
 #[derive(ScryptoSbor, ScryptoEvent)]
@@ -482,7 +483,7 @@ mod radix_life {
             self.last_object_id += 1;
 
             let object_bucket = self.object_resource_manager.mint_non_fungible(
-                &NonFungibleLocalId::integer(self.last_people_id.into()),
+                &NonFungibleLocalId::integer(self.last_object_id.into()),
                 ObjectData {
                     name: name,
                     mortgaged: mortgaged,
@@ -999,6 +1000,11 @@ mod radix_life {
                 self.object_resource_manager.address() == object_bucket.resource_address(),
                 "Wrong NFT",
             );
+            assert!(
+                !non_fungible_data.rent_allowed && non_fungible_data.rent_to == 0,
+                "Can't sell rented object",
+            );
+
             self.used_objects_vault.put(object_bucket);
 
             Runtime::emit_event(
@@ -1107,6 +1113,7 @@ mod radix_life {
             people_proof: Proof,
             choice: String,
             coin_bucket: Option<Bucket>,
+            number: u64,
         ) {
             let non_fungible = people_proof.check_with_message(
                 self.people_resource_manager.address(),
@@ -1126,6 +1133,7 @@ mod radix_life {
                 ChoiceEvent {
                     choice: choice,
                     people_id: people_id,
+                    number: number,
                 }
             );
 
