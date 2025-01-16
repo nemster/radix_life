@@ -15,6 +15,8 @@ struct ObjectTypeData {
 struct NewPeopleEvent {
     people_id: u64,
     birth_date: i64,
+    father: u64,
+    mother: u64,
 }
 
 #[derive(ScryptoSbor, ScryptoEvent)]
@@ -433,6 +435,8 @@ mod radix_life {
                 NewPeopleEvent {
                     people_id: self.last_people_id,
                     birth_date: birth_date.seconds_since_unix_epoch,
+                    father: father,
+                    mother: mother,
                 }
             );
 
