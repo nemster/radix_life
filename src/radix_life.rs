@@ -424,20 +424,17 @@ mod radix_life {
             &mut self,
             father: u64,
             mother: u64,
-            emit_event: bool,
         ) -> NonFungibleBucket {
             self.last_people_id += 1;
 
             let birth_date = Clock::current_time_rounded_to_seconds().add_seconds(self.hatch_time).unwrap();
 
-            if emit_event {
-                Runtime::emit_event(
-                    NewPeopleEvent {
-                        people_id: self.last_people_id,
-                        birth_date: birth_date.seconds_since_unix_epoch,
-                    }
-                );
-            }
+            Runtime::emit_event(
+                NewPeopleEvent {
+                    people_id: self.last_people_id,
+                    birth_date: birth_date.seconds_since_unix_epoch,
+                }
+            );
 
             self.people_resource_manager.mint_non_fungible(
                 &NonFungibleLocalId::integer(self.last_people_id.into()),
@@ -463,7 +460,7 @@ mod radix_life {
             mother: u64,
             account: Global<Account>,
         ) {
-            let egg_bucket = self.mint_egg(father, mother, false);
+            let egg_bucket = self.mint_egg(father, mother);
 
             self.account_locker.store(
                 account,
@@ -525,7 +522,7 @@ mod radix_life {
             self.eggs_on_sale -= 1;
 
             (
-                self.mint_egg(0, 0, true),
+                self.mint_egg(0, 0),
                 xrd_bucket,
             )
         }
