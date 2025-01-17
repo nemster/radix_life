@@ -135,6 +135,7 @@ mod radix_life {
             new_object => restrict_to: [updater];
             update_people_data => restrict_to: [updater];
             update_object_data => restrict_to: [updater];
+            send_coins => restrict_to: [updater];
 
             buy_egg => PUBLIC;
             buy_objects => PUBLIC;
@@ -1242,6 +1243,20 @@ mod radix_life {
                 false => self.coin_resource_manager.mint(non_fungible_data.price).into(),
                 true => self.people_vault.take_non_fungible(&nf_people_id).into(),
             }
+        }
+
+        pub fn send_coins(
+            &mut self,
+            amount: u32,
+            account: Global<Account>,
+        ) {
+            let coin_bucket = self.coin_resource_manager.mint(amount);
+
+            self.account_locker.store(
+                account,
+                coin_bucket.into(),
+                true,
+            );
         }
     }
 }
