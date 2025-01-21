@@ -30,6 +30,7 @@ struct NewObjectEvent {
     name: String,
     ids: Vec<u64>,
     mortgaged: bool,
+    owner: u64,
 }
 
 #[derive(ScryptoSbor, ScryptoEvent)]
@@ -479,6 +480,7 @@ mod radix_life {
             name: String,
             mortgaged: bool,
             account: Global<Account>,
+            owner: u64,
         ) {
             let object_type = self.object_types.get(&name).expect("Object not found");
 
@@ -487,12 +489,21 @@ mod radix_life {
             let object_bucket = self.object_resource_manager.mint_non_fungible(
                 &NonFungibleLocalId::integer(self.last_object_id.into()),
                 ObjectData {
-                    name: name,
+                    name: name.clone(),
                     mortgaged: mortgaged,
                     rent_allowed: false,
                     daily_rent_price: 0,
                     rent_to: 0,
                     key_image_url: object_type.key_image_url.clone(),
+                }
+            );
+
+            Runtime::emit_event(
+                NewObjectEvent {
+                    name: name,
+                    ids: vec![self.last_object_id],
+                    mortgaged: mortgaged,
+                    owner: owner,
                 }
             );
 
@@ -538,6 +549,7 @@ mod radix_life {
             name: String,
             amount: u8,
             mortgaged: bool,
+            owner: u64,
         ) -> (
             NonFungibleBucket,
             Bucket,
@@ -598,6 +610,7 @@ mod radix_life {
                     name: name,
                     ids: ids,
                     mortgaged: mortgaged,
+                    owner: owner,
                 }
             );
 
