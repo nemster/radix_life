@@ -227,7 +227,7 @@ mod radix_life {
                     metadata_locker_updater => rule!(require(owner_badge_address));
                 },
                 init {
-                    "name" => "RadixLife people", updatable;
+                    "name" => "Radixian", updatable;
                 }
             ))
             .mint_roles(mint_roles!(
@@ -312,7 +312,7 @@ mod radix_life {
                     metadata_locker_updater => rule!(require(owner_badge_address));
                 },
                 init {
-                    "name" => "RadixLife people on sale", updatable;
+                    "name" => "Radixian on sale", updatable;
                 }
             ))
             .mint_roles(mint_roles!(
