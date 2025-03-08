@@ -67,6 +67,7 @@ struct SoldObjectEvent {
 #[derive(ScryptoSbor, ScryptoEvent)]
 struct BoughtObjectEvent {
     object_id: u64,
+    owner: u64,
 }
 
 #[derive(ScryptoSbor, ScryptoEvent)]
@@ -1044,6 +1045,7 @@ mod radix_life {
         pub fn buy_used_object(
             &mut self,
             object_id: u64,
+            owner: u64,
             mut coin_bucket: Bucket,
         ) -> (
             NonFungibleBucket,
@@ -1064,6 +1066,7 @@ mod radix_life {
             Runtime::emit_event(
                 BoughtObjectEvent {
                     object_id: object_id,
+                    owner: owner,
                 }
             );
 
