@@ -164,12 +164,12 @@ CALL_METHOD
 `<ACCOUNT_ADDRESS>` The account address of the buyer.  
 `<NON_FUNGIBLE_ID>` The numeric identifier of the NFT.  
 `<COIN_AMOUNT>` The number of coin to spend.  
-`<NUMBER>` The meaning of this number depends in the choice; it can be zero if not required.  
 `<CHOICE>` Is a string representing what the radixian wants to do.  
+`<NUMBER>` The meaning of this number depends in the choice; it can be zero if not required.  
 
 ### Make choice without payment
 
-A choice can be anything.
+A choice can be anything.  
 Some choices require a payment, most choices don't. This is the transaction to execute to make a choice that doesn't require a payment.  
 Some choices require a number to be specified, some don't.
 
@@ -195,8 +195,8 @@ CALL_METHOD
 
 `<ACCOUNT_ADDRESS>` The account address of the buyer.  
 `<NON_FUNGIBLE_ID>` The numeric identifier of the NFT.  
-`<NUMBER>` The meaning of this number depends in the choice; it can be zero if not required.  
 `<CHOICE>` Is a string representing what the radixian wants to do.  
+`<NUMBER>` The meaning of this number depends in the choice; it can be zero if not required.  
 
 ### Withdraw from bank account
 
