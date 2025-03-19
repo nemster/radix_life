@@ -218,6 +218,11 @@ CALL_METHOD
     Proof("people_proof")
     Decimal("<COIN_AMOUNT>")
 ;
+CALL_METHOD
+    Address("<ACCOUNT_ADDRESS>")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
 ```
 
 `<ACCOUNT_ADDRESS>` The account containing the radixian who wants to withdraw.  
