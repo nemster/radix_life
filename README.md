@@ -216,12 +216,7 @@ CALL_METHOD
     Address("component_tdx_2_1cpyr294csm672ekfcyu6u9fjn8stjcma6snjpz2wdn0eef72psah9x")
     "withdraw_from_bank_account"
     Proof("people_proof")
-    Decimal("<COIN_AMOUNT>")
-;
-CALL_METHOD
-    Address("<ACCOUNT_ADDRESS>")
-    "deposit_batch"
-    Expression("ENTIRE_WORKTOP")
+    <COIN_AMOUNT>u32
 ;
 ```
 
