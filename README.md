@@ -89,7 +89,6 @@ CALL_METHOD
 ### Buy objects
 
 Buy one or more objects using in game coins.  
-If the user doesn't have any in game coin, he can combine this transaction with the previous one.  
 
 ```
 CALL_METHOD
@@ -120,6 +119,53 @@ CALL_METHOD
 
 `<ACCOUNT_ADDRESS>` The account address of the buyer.  
 `<COIN_AMOUNT>` The number of coin to spend.  
+`<OBJECT_NAME>` The name of the object(s) to buy.  
+`<NUMBER_OF_OBJECTS>` The number of objects to buy.  
+`<MORTGAGE>` Whether to mortgage the object and pay just half its price or not (`true` or `false`).  
+`<OWNER_ID>` Numeric NFT id of the owner of the object(s).  
+
+### Buy objects with XRD
+
+It is possible to combine the XRD -> in game coin exchange and the buy objects calls to buy objects paying in XRD.  
+
+```
+CALL_METHOD
+    Address("<ACCOUNT_ADDRESS>")
+    "withdraw"
+    Address("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc")
+    Decimal("<XRD_AMOUNT>")
+;
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc")
+    Bucket("xrd_bucket")
+;
+CALL_METHOD
+    Address("component_tdx_2_1cpyr294csm672ekfcyu6u9fjn8stjcma6snjpz2wdn0eef72psah9x")
+    "buy_coins"
+    Bucket("xrd_bucket")
+;
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_tdx_2_1t5h2z9l3fcg74s0yqgluwft47v8ktj5u95uz3lh9w0rus838exp6cs")
+    Bucket("coin_bucket")
+;
+CALL_METHOD
+    Address("component_tdx_2_1cpyr294csm672ekfcyu6u9fjn8stjcma6snjpz2wdn0eef72psah9x")
+    "buy_objects"
+    Bucket("coin_bucket")
+    "<OBJECT_NAME>"
+    <NUMBER_OF_OBJECTS>u8
+    <MORTGAGE>
+    <OWNER_ID>u64
+;
+CALL_METHOD
+    Address("<ACCOUNT_ADDRESS>")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
+```
+
+`<ACCOUNT_ADDRESS>` The account address of the buyer.  
+`<XRD_AMOUNT>` The number of XRD to exchange.  
 `<OBJECT_NAME>` The name of the object(s) to buy.  
 `<NUMBER_OF_OBJECTS>` The number of objects to buy.  
 `<MORTGAGE>` Whether to mortgage the object and pay just half its price or not (`true` or `false`).  
@@ -164,6 +210,55 @@ CALL_METHOD
 `<ACCOUNT_ADDRESS>` The account address owning the radixian.  
 `<NON_FUNGIBLE_ID>` The numeric identifier of the NFT.  
 `<COIN_AMOUNT>` The number of coin to spend.  
+`<CHOICE>` Is a string representing what the radixian wants to do.  
+`<NUMBER>` The meaning of this number depends on the choice; it can be zero if not required.  
+
+### Make choice with XRD payment
+
+It is possible to combine the XRD -> in game coin exchange and the make choice object calls to make a choice paying in XRD.  
+
+```
+CALL_METHOD
+    Address("<ACCOUNT_ADDRESS>")
+    "create_proof_of_non_fungibles"
+    Address("resource_tdx_2_1nta73wetyu8jz4yn2m0femd532u3l4th7lutf645te4leqjhpmlwud")
+    Array<NonFungibleLocalId>(NonFungibleLocalId("#<NON_FUNGIBLE_ID>#"))
+;
+POP_FROM_AUTH_ZONE
+    Proof("people_proof")
+;
+CALL_METHOD
+    Address("<ACCOUNT_ADDRESS>")
+    "withdraw"
+    Address("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc")
+    Decimal("<XRD_AMOUNT>")
+;
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc")
+    Bucket("xrd_bucket")
+;
+CALL_METHOD
+    Address("component_tdx_2_1cpyr294csm672ekfcyu6u9fjn8stjcma6snjpz2wdn0eef72psah9x")
+    "buy_coins"
+    Bucket("xrd_bucket")
+;
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_tdx_2_1t5h2z9l3fcg74s0yqgluwft47v8ktj5u95uz3lh9w0rus838exp6cs")
+    Bucket("coin_bucket")
+;
+CALL_METHOD
+    Address("component_tdx_2_1cpyr294csm672ekfcyu6u9fjn8stjcma6snjpz2wdn0eef72psah9x")
+    "make_choice"
+    Proof("people_proof")
+    "<CHOICE>"
+    Some(Bucket("coin_bucket"))
+    <NUMBER>u64
+;
+```
+
+`<ACCOUNT_ADDRESS>` The account address owning the radixian.  
+`<NON_FUNGIBLE_ID>` The numeric identifier of the NFT.  
+`<XRD_AMOUNT>` The number of XRD to exchange.  
 `<CHOICE>` Is a string representing what the radixian wants to do.  
 `<NUMBER>` The meaning of this number depends on the choice; it can be zero if not required.  
 
@@ -250,3 +345,142 @@ CALL_METHOD
 `<ACCOUNT_ADDRESS>` The account containing the radixian who wants to deposit.  
 `<COIN_AMOUNT>` The number of coin to deposit in the radixian's bank account.  
 `<NON_FUNGIBLE_ID>` The numeric identifier of the radixian NFT.  
+
+### Rent an object
+
+It is possible for a radixian to rent an object belonging to another radixian.  
+The object stays in the owner account but the `rent_to` field is updated.  
+
+```
+CALL_METHOD
+    Address("<ACCOUNT_ADDRESS>")
+    "create_proof_of_non_fungibles"
+    Address("resource_tdx_2_1nta73wetyu8jz4yn2m0femd532u3l4th7lutf645te4leqjhpmlwud")
+    Array<NonFungibleLocalId>(NonFungibleLocalId("#<NON_FUNGIBLE_ID>#"))
+;
+POP_FROM_AUTH_ZONE
+    Proof("people_proof")
+;
+CALL_METHOD
+    Address("component_tdx_2_1cpyr294csm672ekfcyu6u9fjn8stjcma6snjpz2wdn0eef72psah9x")
+    "rent"
+    Proof("people_proof")
+    "<OBJECT_NAME>"
+    <OBJECT_ID>u64
+;
+```
+
+`<ACCOUNT_ADDRESS>` The account containing the radixian who wants to deposit.  
+`<NON_FUNGIBLE_ID>` The numeric identifier of the radixian NFT.  
+`<OBJECT_NAME>` The name of the object to rent.  
+`<OBJECT_ID>` The numeric ID of the object to rent.  
+
+### Sell an object
+
+Place an object for sale on the second-hand market.
+This method returns a receipt that can be later used to withdraw the proceeds of the sale or the object (if no one bought it).  
+
+```
+CALL_METHOD
+    Address("<ACCOUNT_ADDRESS>")
+    "withdraw_non_fungibles"
+    Address("resource_tdx_2_1ngrckt0c50lye98l86wdh338g7f5n49jr3xq683r6r2hw2xdnpzw38")
+    Array<NonFungibleLocalId>(NonFungibleLocalId("#<OBJECT_ID>#"))
+;
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_tdx_2_1ngrckt0c50lye98l86wdh338g7f5n49jr3xq683r6r2hw2xdnpzw38")
+    Bucket("object_bucket")
+;
+CALL_METHOD
+    Address("component_tdx_2_1cpyr294csm672ekfcyu6u9fjn8stjcma6snjpz2wdn0eef72psah9x")
+    "sell_object"
+    Bucket("object_bucket")
+    `<PRICE>`u32
+;
+CALL_METHOD
+    Address("<ACCOUNT_ADDRESS>")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
+```
+
+`<ACCOUNT_ADDRESS>` The account containing the radixian who wants to deposit.  
+`<OBJECT_ID>` The numeric ID of the object to rent.  
+`<PRICE>` The price at which the object is to be sold.  
+
+### Buy an used object
+
+Buy an object from the second-hand market using in game coins.  
+
+```
+CALL_METHOD
+    Address("<ACCOUNT_ADDRESS>")
+    "withdraw"
+    Address("resource_tdx_2_1t5h2z9l3fcg74s0yqgluwft47v8ktj5u95uz3lh9w0rus838exp6cs")
+    Decimal("<COIN_AMOUNT>")
+;
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_tdx_2_1t5h2z9l3fcg74s0yqgluwft47v8ktj5u95uz3lh9w0rus838exp6cs")
+    Bucket("coin_bucket")
+;
+CALL_METHOD
+    Address("component_tdx_2_1cpyr294csm672ekfcyu6u9fjn8stjcma6snjpz2wdn0eef72psah9x")
+    "buy_used_object"
+    <OBJECT_ID>u64
+    <OWNER_ID>u64
+    Bucket("coin_bucket")
+;
+CALL_METHOD
+    Address("<ACCOUNT_ADDRESS>")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
+```
+
+`<ACCOUNT_ADDRESS>` The account address of the buyer.  
+`<COIN_AMOUNT>` The number of coin to spend.  
+`<OBJECT_ID>` Numeric NFT id of the object.  
+`<OWNER_ID>` Numeric NFT id of the owner of the object.  
+
+### Buy an used object with XRD
+
+It is possible to combine the XRD -> in game coin exchange and the buy used object calls to buy an object paying in XRD.  
+
+```
+CALL_METHOD
+    Address("<ACCOUNT_ADDRESS>")
+    "withdraw"
+    Address("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc")
+    Decimal("<XRD_AMOUNT>")
+;
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc")
+    Bucket("xrd_bucket")
+;
+CALL_METHOD
+    Address("component_tdx_2_1cpyr294csm672ekfcyu6u9fjn8stjcma6snjpz2wdn0eef72psah9x")
+    "buy_coins"
+    Bucket("xrd_bucket")
+;
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_tdx_2_1t5h2z9l3fcg74s0yqgluwft47v8ktj5u95uz3lh9w0rus838exp6cs")
+    Bucket("coin_bucket")
+;
+CALL_METHOD
+    Address("component_tdx_2_1cpyr294csm672ekfcyu6u9fjn8stjcma6snjpz2wdn0eef72psah9x")
+    "buy_used_object"
+    <OBJECT_ID>u64
+    <OWNER_ID>u64
+    Bucket("coin_bucket")
+;
+CALL_METHOD
+    Address("<ACCOUNT_ADDRESS>")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
+```
+
+`<ACCOUNT_ADDRESS>` The account address of the buyer.  
+`<XRD_AMOUNT>` The number of XRD to exchange.  
+`<OBJECT_ID>` Numeric NFT id of the object.  
+`<OWNER_ID>` Numeric NFT id of the owner of the object.  
