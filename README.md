@@ -377,7 +377,7 @@ CALL_METHOD
 
 ### Sell an object
 
-Place an object for sale on the second-hand market.
+Place an object for sale on the second-hand market.  
 This method returns a receipt that can be later used to withdraw the proceeds of the sale or the object (if no one bought it).  
 
 ```
@@ -395,7 +395,7 @@ CALL_METHOD
     Address("component_tdx_2_1cpyr294csm672ekfcyu6u9fjn8stjcma6snjpz2wdn0eef72psah9x")
     "sell_object"
     Bucket("object_bucket")
-    `<PRICE>`u32
+    <PRICE>u32
 ;
 CALL_METHOD
     Address("<ACCOUNT_ADDRESS>")
@@ -484,3 +484,34 @@ CALL_METHOD
 `<XRD_AMOUNT>` The number of XRD to exchange.  
 `<OBJECT_ID>` Numeric NFT id of the object.  
 `<OWNER_ID>` Numeric NFT id of the owner of the object.  
+
+### Allow renting an object
+
+Use this transaction to allow or disallow other users to rent an object you own.  
+
+```
+CALL_METHOD
+    Address("<ACCOUNT_ADDRESS>")
+    "create_proof_of_non_fungibles"
+    Address("")
+    Array<NonFungibleLocalId>(NonFungibleLocalId("#<OBJECT_ID>#"))
+;
+POP_FROM_AUTH_ZONE
+    Proof("object_proof")
+;
+CALL_METHOD
+    Address("component_tdx_2_1cpyr294csm672ekfcyu6u9fjn8stjcma6snjpz2wdn0eef72psah9x")
+    "allow_rent"
+    Proof("object_proof")
+    <ALLOW>
+    Some(<DAILY_PRICE>u32)
+    Some(<OWNER_ID>u64)
+;
+```
+
+`<ACCOUNT_ADDRESS>` The account address of the buyer.  
+`<OBJECT_ID>` Numeric NFT id of the object.  
+`<ALLOW>` True to allow rent or false to disallow it.  
+`<DAILY_PRICE>` The daily fee amount. `None` if disallowing the rent.  
+`<OWNER_ID>` Numeric NFT ID of the owner of the object (who will receive the rent fee?). `None` if disallowing it.   
+
