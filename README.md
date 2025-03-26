@@ -215,7 +215,7 @@ CALL_METHOD
 
 ### Make choice with XRD payment
 
-It is possible to combine the XRD -> in game coin exchange and the make choice object calls to make a choice paying in XRD.  
+It is possible to combine the XRD -> in game coin exchange and the make choice calls to make a choice paying in XRD.  
 
 ```
 CALL_METHOD
