@@ -1,4 +1,4 @@
-# RadixLife blueprnt
+# RadixLife blueprint
 
 ## Transaction manifests (Stokenet)
 
