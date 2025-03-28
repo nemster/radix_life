@@ -888,11 +888,13 @@ mod radix_life {
                 "rent_allowed",
                 allow
             );
-            self.object_resource_manager.update_non_fungible_data(
-                non_fungible.local_id(),
-                "daily_rent_price",
-                daily_price
-            );
+            if allow {
+                self.object_resource_manager.update_non_fungible_data(
+                    non_fungible.local_id(),
+                    "daily_rent_price",
+                    daily_price.unwrap()
+                );
+            }
 
             Runtime::emit_event(
                 AllowRentEvent {
