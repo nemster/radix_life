@@ -426,7 +426,7 @@ TAKE_ALL_FROM_WORKTOP
 CALL_METHOD
     Address("component_tdx_2_1crkhanphyasmvgpdshsw39mg6dderhjayvdkmpzh7ssa9ald0tuucr")
     "buy_used_object"
-    <OBJECT_ID>u64
+    <RECEIPT_ID>u64
     <OWNER_ID>u64
     Bucket("coin_bucket")
 ;
@@ -439,7 +439,7 @@ CALL_METHOD
 
 `<ACCOUNT_ADDRESS>` The account address of the buyer.  
 `<COIN_AMOUNT>` The number of coin to spend.  
-`<OBJECT_ID>` Numeric NFT id of the object.  
+`<RECEIPT_ID>` Numeric NFT id of the receipt for the sold object.  
 `<OWNER_ID>` Numeric NFT id of the owner of the object.  
 
 ### Buy an used object with XRD
@@ -469,7 +469,7 @@ TAKE_ALL_FROM_WORKTOP
 CALL_METHOD
     Address("component_tdx_2_1crkhanphyasmvgpdshsw39mg6dderhjayvdkmpzh7ssa9ald0tuucr")
     "buy_used_object"
-    <OBJECT_ID>u64
+    <RECEIPT_ID>u64
     <OWNER_ID>u64
     Bucket("coin_bucket")
 ;
@@ -482,7 +482,7 @@ CALL_METHOD
 
 `<ACCOUNT_ADDRESS>` The account address of the buyer.  
 `<XRD_AMOUNT>` The number of XRD to exchange.  
-`<OBJECT_ID>` Numeric NFT id of the object.  
+`<RECEIPT_ID>` Numeric NFT id of the receipt for the sold object.  
 `<OWNER_ID>` Numeric NFT id of the owner of the object.  
 
 ### Allow renting an object

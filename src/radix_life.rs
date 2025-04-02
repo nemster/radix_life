@@ -62,6 +62,7 @@ struct TerminateRentEvent {
 struct SoldObjectEvent {
     object_id: u64,
     price: u32,
+    receipt_id: u64,
 }
 
 #[derive(ScryptoSbor, ScryptoEvent)]
@@ -87,6 +88,7 @@ struct BankWithdrawEvent {
 struct SoldPeopleEvent {
     people_id: u64,
     price: u32, 
+    receipt_id: u64,
 }
 
 #[derive(ScryptoSbor, ScryptoEvent)]
@@ -1025,14 +1027,15 @@ mod radix_life {
 
             self.used_objects_vault.put(object_bucket);
 
+            self.last_receipt_id += 1;
+
             Runtime::emit_event(
                 SoldObjectEvent {
                     object_id: object_id,
                     price: price,
+                    receipt_id: self.last_receipt_id,
                 }
             );
-          
-            self.last_receipt_id += 1;
 
             self.sold_objects_resource_manager.mint_non_fungible(
                 &NonFungibleLocalId::integer(self.last_receipt_id.into()),
@@ -1046,7 +1049,7 @@ mod radix_life {
 
         pub fn buy_used_object(
             &mut self,
-            object_id: u64,
+            receipt_id: u64,
             owner: u64,
             mut coin_bucket: Bucket,
         ) -> (
@@ -1058,19 +1061,21 @@ mod radix_life {
                 "Wrong coin",
             );
 
-            let nf_object_id = NonFungibleLocalId::integer(object_id);
+            let nf_receipt_id = NonFungibleLocalId::integer(receipt_id);
             let non_fungible_data = self.sold_objects_resource_manager.get_non_fungible_data::<SoldObjectReceipt>(
-                &nf_object_id
+                &nf_receipt_id
             );
 
             coin_bucket.take(Decimal::from(non_fungible_data.price)).burn();
 
             Runtime::emit_event(
                 BoughtObjectEvent {
-                    object_id: object_id,
+                    object_id: non_fungible_data.object_id,
                     owner: owner,
                 }
             );
+
+            let nf_object_id = NonFungibleLocalId::integer(non_fungible_data.object_id);
 
             (
                 self.used_objects_vault.take_non_fungible(&nf_object_id),
@@ -1191,15 +1196,16 @@ mod radix_life {
             );
             self.people_vault.put(people_bucket);
 
+            self.last_receipt_id += 1;
+
             Runtime::emit_event(
                 SoldPeopleEvent { 
                     people_id: people_id,
                     price: price,
+                    receipt_id: self.last_receipt_id,
                 }
             );
         
-            self.last_receipt_id += 1;
-
             self.sold_people_resource_manager.mint_non_fungible(
                 &NonFungibleLocalId::integer(self.last_receipt_id.into()),
                 SoldPeopleReceipt {
@@ -1212,7 +1218,7 @@ mod radix_life {
 
         pub fn buy_people(
             &mut self,
-            people_id: u64,
+            receipt_id: u64,
             mut coin_bucket: Bucket,
         ) -> (
             NonFungibleBucket,
@@ -1223,19 +1229,20 @@ mod radix_life {
                 "Wrong coin",
             );
 
-            let nf_people_id = NonFungibleLocalId::integer(people_id);
+            let nf_receipt_id = NonFungibleLocalId::integer(receipt_id);
             let non_fungible_data = self.sold_people_resource_manager.get_non_fungible_data::<SoldPeopleReceipt>(
-                &nf_people_id
+                &nf_receipt_id
             );
 
             coin_bucket.take(Decimal::from(non_fungible_data.price)).burn();
 
             Runtime::emit_event(
                 BoughtPeopleEvent {
-                    people_id: people_id,
+                    people_id: non_fungible_data.people_id,
                 }
             );
 
+            let nf_people_id = NonFungibleLocalId::integer(non_fungible_data.people_id);
             (
                 self.people_vault.take_non_fungible(&nf_people_id),
                 coin_bucket,
