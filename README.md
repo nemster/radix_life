@@ -16,7 +16,7 @@ TAKE_ALL_FROM_WORKTOP
     Bucket("xrd_bucket")
 ;
 CALL_METHOD
-    Address("component_tdx_2_1crkhanphyasmvgpdshsw39mg6dderhjayvdkmpzh7ssa9ald0tuucr")
+    Address("component_tdx_2_1cqxlcpyrwy42lsaypvtautlpjr56duy4jp6638wpn4z7fa3jm2uz8q")
     "buy_egg"
     Bucket("xrd_bucket")
 ;
@@ -38,14 +38,14 @@ Assign a name to an NFT you own.
 CALL_METHOD
     Address("<ACCOUNT_ADDRESS>")
     "create_proof_of_non_fungibles"
-    Address("resource_tdx_2_1nfsa03aejkcq52vl7lhvsq6aqtdlzf5crjjn3cu05phk3kfa40dek0")
+    Address("resource_tdx_2_1nt5nh67lns6t2pp5uarwhla25aufp85400jk8tlxsl2z5j5vku7nr9")
     Array<NonFungibleLocalId>(NonFungibleLocalId("#<NON_FUNGIBLE_ID>#"))
 ;
 POP_FROM_AUTH_ZONE
     Proof("people_proof")
 ;
 CALL_METHOD
-    Address("component_tdx_2_1crkhanphyasmvgpdshsw39mg6dderhjayvdkmpzh7ssa9ald0tuucr")
+    Address("component_tdx_2_1cqxlcpyrwy42lsaypvtautlpjr56duy4jp6638wpn4z7fa3jm2uz8q")
     "give_name"
     Proof("people_proof")
     "<NAME>"
@@ -72,7 +72,7 @@ TAKE_ALL_FROM_WORKTOP
     Bucket("xrd_bucket")
 ;
 CALL_METHOD
-    Address("component_tdx_2_1crkhanphyasmvgpdshsw39mg6dderhjayvdkmpzh7ssa9ald0tuucr")
+    Address("component_tdx_2_1cqxlcpyrwy42lsaypvtautlpjr56duy4jp6638wpn4z7fa3jm2uz8q")
     "buy_coins"
     Bucket("xrd_bucket")
 ;
@@ -94,15 +94,15 @@ Buy one or more objects using in game coins.
 CALL_METHOD
     Address("<ACCOUNT_ADDRESS>")
     "withdraw"
-    Address("resource_tdx_2_1tkumff7k6gs92vszzcclqe3sj76ax706uswpumeufh5f8md0c49xgx")
+    Address("resource_tdx_2_1thkq0q8yu00axdelr8fvsnm0dg3j29v8m5z9fs6pcs73w5utnn8vht")
     Decimal("<COIN_AMOUNT>")
 ;
 TAKE_ALL_FROM_WORKTOP
-    Address("resource_tdx_2_1tkumff7k6gs92vszzcclqe3sj76ax706uswpumeufh5f8md0c49xgx")
+    Address("resource_tdx_2_1thkq0q8yu00axdelr8fvsnm0dg3j29v8m5z9fs6pcs73w5utnn8vht")
     Bucket("coin_bucket")
 ;
 CALL_METHOD
-    Address("component_tdx_2_1crkhanphyasmvgpdshsw39mg6dderhjayvdkmpzh7ssa9ald0tuucr")
+    Address("component_tdx_2_1cqxlcpyrwy42lsaypvtautlpjr56duy4jp6638wpn4z7fa3jm2uz8q")
     "buy_objects"
     Bucket("coin_bucket")
     "<OBJECT_NAME>"
@@ -140,16 +140,16 @@ TAKE_ALL_FROM_WORKTOP
     Bucket("xrd_bucket")
 ;
 CALL_METHOD
-    Address("component_tdx_2_1crkhanphyasmvgpdshsw39mg6dderhjayvdkmpzh7ssa9ald0tuucr")
+    Address("component_tdx_2_1cqxlcpyrwy42lsaypvtautlpjr56duy4jp6638wpn4z7fa3jm2uz8q")
     "buy_coins"
     Bucket("xrd_bucket")
 ;
 TAKE_ALL_FROM_WORKTOP
-    Address("resource_tdx_2_1tkumff7k6gs92vszzcclqe3sj76ax706uswpumeufh5f8md0c49xgx")
+    Address("resource_tdx_2_1thkq0q8yu00axdelr8fvsnm0dg3j29v8m5z9fs6pcs73w5utnn8vht")
     Bucket("coin_bucket")
 ;
 CALL_METHOD
-    Address("component_tdx_2_1crkhanphyasmvgpdshsw39mg6dderhjayvdkmpzh7ssa9ald0tuucr")
+    Address("component_tdx_2_1cqxlcpyrwy42lsaypvtautlpjr56duy4jp6638wpn4z7fa3jm2uz8q")
     "buy_objects"
     Bucket("coin_bucket")
     "<OBJECT_NAME>"
@@ -181,7 +181,7 @@ Some choices require a number to be specified, some don't.
 CALL_METHOD
     Address("<ACCOUNT_ADDRESS>")
     "create_proof_of_non_fungibles"
-    Address("resource_tdx_2_1nfsa03aejkcq52vl7lhvsq6aqtdlzf5crjjn3cu05phk3kfa40dek0")
+    Address("resource_tdx_2_1nt5nh67lns6t2pp5uarwhla25aufp85400jk8tlxsl2z5j5vku7nr9")
     Array<NonFungibleLocalId>(NonFungibleLocalId("#<NON_FUNGIBLE_ID>#"))
 ;
 POP_FROM_AUTH_ZONE
@@ -190,15 +190,15 @@ POP_FROM_AUTH_ZONE
 CALL_METHOD
     Address("<ACCOUNT_ADDRESS>")
     "withdraw"
-    Address("resource_tdx_2_1tkumff7k6gs92vszzcclqe3sj76ax706uswpumeufh5f8md0c49xgx")
+    Address("resource_tdx_2_1thkq0q8yu00axdelr8fvsnm0dg3j29v8m5z9fs6pcs73w5utnn8vht")
     Decimal("<COIN_AMOUNT>")
 ;
 TAKE_ALL_FROM_WORKTOP
-    Address("resource_tdx_2_1tkumff7k6gs92vszzcclqe3sj76ax706uswpumeufh5f8md0c49xgx")
+    Address("resource_tdx_2_1thkq0q8yu00axdelr8fvsnm0dg3j29v8m5z9fs6pcs73w5utnn8vht")
     Bucket("coin_bucket")
 ;
 CALL_METHOD
-    Address("component_tdx_2_1crkhanphyasmvgpdshsw39mg6dderhjayvdkmpzh7ssa9ald0tuucr")
+    Address("component_tdx_2_1cqxlcpyrwy42lsaypvtautlpjr56duy4jp6638wpn4z7fa3jm2uz8q")
     "make_choice"
     Proof("people_proof")
     "<CHOICE>"
@@ -221,7 +221,7 @@ It is possible to combine the XRD -> in game coin exchange and the make choice c
 CALL_METHOD
     Address("<ACCOUNT_ADDRESS>")
     "create_proof_of_non_fungibles"
-    Address("resource_tdx_2_1nfsa03aejkcq52vl7lhvsq6aqtdlzf5crjjn3cu05phk3kfa40dek0")
+    Address("resource_tdx_2_1nt5nh67lns6t2pp5uarwhla25aufp85400jk8tlxsl2z5j5vku7nr9")
     Array<NonFungibleLocalId>(NonFungibleLocalId("#<NON_FUNGIBLE_ID>#"))
 ;
 POP_FROM_AUTH_ZONE
@@ -238,16 +238,16 @@ TAKE_ALL_FROM_WORKTOP
     Bucket("xrd_bucket")
 ;
 CALL_METHOD
-    Address("component_tdx_2_1crkhanphyasmvgpdshsw39mg6dderhjayvdkmpzh7ssa9ald0tuucr")
+    Address("component_tdx_2_1cqxlcpyrwy42lsaypvtautlpjr56duy4jp6638wpn4z7fa3jm2uz8q")
     "buy_coins"
     Bucket("xrd_bucket")
 ;
 TAKE_ALL_FROM_WORKTOP
-    Address("resource_tdx_2_1tkumff7k6gs92vszzcclqe3sj76ax706uswpumeufh5f8md0c49xgx")
+    Address("resource_tdx_2_1thkq0q8yu00axdelr8fvsnm0dg3j29v8m5z9fs6pcs73w5utnn8vht")
     Bucket("coin_bucket")
 ;
 CALL_METHOD
-    Address("component_tdx_2_1crkhanphyasmvgpdshsw39mg6dderhjayvdkmpzh7ssa9ald0tuucr")
+    Address("component_tdx_2_1cqxlcpyrwy42lsaypvtautlpjr56duy4jp6638wpn4z7fa3jm2uz8q")
     "make_choice"
     Proof("people_proof")
     "<CHOICE>"
@@ -272,14 +272,14 @@ Some choices require a number to be specified, some don't.
 CALL_METHOD
     Address("<ACCOUNT_ADDRESS>")
     "create_proof_of_non_fungibles"
-    Address("resource_tdx_2_1nfsa03aejkcq52vl7lhvsq6aqtdlzf5crjjn3cu05phk3kfa40dek0")
+    Address("resource_tdx_2_1nt5nh67lns6t2pp5uarwhla25aufp85400jk8tlxsl2z5j5vku7nr9")
     Array<NonFungibleLocalId>(NonFungibleLocalId("#<NON_FUNGIBLE_ID>#"))
 ;
 POP_FROM_AUTH_ZONE
     Proof("people_proof")
 ;
 CALL_METHOD
-    Address("component_tdx_2_1crkhanphyasmvgpdshsw39mg6dderhjayvdkmpzh7ssa9ald0tuucr")
+    Address("component_tdx_2_1cqxlcpyrwy42lsaypvtautlpjr56duy4jp6638wpn4z7fa3jm2uz8q")
     "make_choice"
     Proof("people_proof")
     "<CHOICE>"
@@ -301,14 +301,14 @@ This is the transaction to request a withdraw from a bank account; the bank acco
 CALL_METHOD
     Address("<ACCOUNT_ADDRESS>")
     "create_proof_of_non_fungibles"
-    Address("resource_tdx_2_1nfsa03aejkcq52vl7lhvsq6aqtdlzf5crjjn3cu05phk3kfa40dek0")
+    Address("resource_tdx_2_1nt5nh67lns6t2pp5uarwhla25aufp85400jk8tlxsl2z5j5vku7nr9")
     Array<NonFungibleLocalId>(NonFungibleLocalId("#<NON_FUNGIBLE_ID>#"))
 ;
 POP_FROM_AUTH_ZONE
     Proof("people_proof")
 ;
 CALL_METHOD
-    Address("component_tdx_2_1crkhanphyasmvgpdshsw39mg6dderhjayvdkmpzh7ssa9ald0tuucr")
+    Address("component_tdx_2_1cqxlcpyrwy42lsaypvtautlpjr56duy4jp6638wpn4z7fa3jm2uz8q")
     "withdraw_from_bank_account"
     Proof("people_proof")
     <COIN_AMOUNT>u32
@@ -327,15 +327,15 @@ This is the transaction to deposit coins to a bank account; the bank account is 
 CALL_METHOD
     Address("<ACCOUNT_ADDRESS>")
     "withdraw"
-    Address("resource_tdx_2_1tkumff7k6gs92vszzcclqe3sj76ax706uswpumeufh5f8md0c49xgx")
+    Address("resource_tdx_2_1thkq0q8yu00axdelr8fvsnm0dg3j29v8m5z9fs6pcs73w5utnn8vht")
     Decimal("<COIN_AMOUNT>")
 ;
 TAKE_ALL_FROM_WORKTOP
-    Address("resource_tdx_2_1tkumff7k6gs92vszzcclqe3sj76ax706uswpumeufh5f8md0c49xgx")
+    Address("resource_tdx_2_1thkq0q8yu00axdelr8fvsnm0dg3j29v8m5z9fs6pcs73w5utnn8vht")
     Bucket("coin_bucket")
 ;
 CALL_METHOD
-    Address("component_tdx_2_1crkhanphyasmvgpdshsw39mg6dderhjayvdkmpzh7ssa9ald0tuucr")
+    Address("component_tdx_2_1cqxlcpyrwy42lsaypvtautlpjr56duy4jp6638wpn4z7fa3jm2uz8q")
     "deposit_to_bank_account"
     <NON_FUNGIBLE_ID>u64
     Bucket("coin_bucket")
@@ -355,14 +355,14 @@ The object stays in the owner account but the `rent_to` field is updated.
 CALL_METHOD
     Address("<ACCOUNT_ADDRESS>")
     "create_proof_of_non_fungibles"
-    Address("resource_tdx_2_1nfsa03aejkcq52vl7lhvsq6aqtdlzf5crjjn3cu05phk3kfa40dek0")
+    Address("resource_tdx_2_1nt5nh67lns6t2pp5uarwhla25aufp85400jk8tlxsl2z5j5vku7nr9")
     Array<NonFungibleLocalId>(NonFungibleLocalId("#<NON_FUNGIBLE_ID>#"))
 ;
 POP_FROM_AUTH_ZONE
     Proof("people_proof")
 ;
 CALL_METHOD
-    Address("component_tdx_2_1crkhanphyasmvgpdshsw39mg6dderhjayvdkmpzh7ssa9ald0tuucr")
+    Address("component_tdx_2_1cqxlcpyrwy42lsaypvtautlpjr56duy4jp6638wpn4z7fa3jm2uz8q")
     "rent"
     Proof("people_proof")
     "<OBJECT_NAME>"
@@ -384,15 +384,15 @@ This method returns a receipt that can be later used to withdraw the proceeds of
 CALL_METHOD
     Address("<ACCOUNT_ADDRESS>")
     "withdraw_non_fungibles"
-    Address("resource_tdx_2_1n2m9vnd08kvfsyl2dlk8hy5ula5745m2q4xdrkxy3slttsw5mu4rhf")
+    Address("resource_tdx_2_1nfx748elwawshwwfrfwdrgxh6sz6hw3gp9jc286mtshu27vj6ecg0x")
     Array<NonFungibleLocalId>(NonFungibleLocalId("#<OBJECT_ID>#"))
 ;
 TAKE_ALL_FROM_WORKTOP
-    Address("resource_tdx_2_1n2m9vnd08kvfsyl2dlk8hy5ula5745m2q4xdrkxy3slttsw5mu4rhf")
+    Address("resource_tdx_2_1nfx748elwawshwwfrfwdrgxh6sz6hw3gp9jc286mtshu27vj6ecg0x")
     Bucket("object_bucket")
 ;
 CALL_METHOD
-    Address("component_tdx_2_1crkhanphyasmvgpdshsw39mg6dderhjayvdkmpzh7ssa9ald0tuucr")
+    Address("component_tdx_2_1cqxlcpyrwy42lsaypvtautlpjr56duy4jp6638wpn4z7fa3jm2uz8q")
     "sell_object"
     Bucket("object_bucket")
     <PRICE>u32
@@ -416,15 +416,15 @@ Buy an object from the second-hand market using in game coins.
 CALL_METHOD
     Address("<ACCOUNT_ADDRESS>")
     "withdraw"
-    Address("resource_tdx_2_1tkumff7k6gs92vszzcclqe3sj76ax706uswpumeufh5f8md0c49xgx")
+    Address("resource_tdx_2_1thkq0q8yu00axdelr8fvsnm0dg3j29v8m5z9fs6pcs73w5utnn8vht")
     Decimal("<COIN_AMOUNT>")
 ;
 TAKE_ALL_FROM_WORKTOP
-    Address("resource_tdx_2_1tkumff7k6gs92vszzcclqe3sj76ax706uswpumeufh5f8md0c49xgx")
+    Address("resource_tdx_2_1thkq0q8yu00axdelr8fvsnm0dg3j29v8m5z9fs6pcs73w5utnn8vht")
     Bucket("coin_bucket")
 ;
 CALL_METHOD
-    Address("component_tdx_2_1crkhanphyasmvgpdshsw39mg6dderhjayvdkmpzh7ssa9ald0tuucr")
+    Address("component_tdx_2_1cqxlcpyrwy42lsaypvtautlpjr56duy4jp6638wpn4z7fa3jm2uz8q")
     "buy_used_object"
     <RECEIPT_ID>u64
     <OWNER_ID>u64
@@ -458,16 +458,16 @@ TAKE_ALL_FROM_WORKTOP
     Bucket("xrd_bucket")
 ;
 CALL_METHOD
-    Address("component_tdx_2_1crkhanphyasmvgpdshsw39mg6dderhjayvdkmpzh7ssa9ald0tuucr")
+    Address("component_tdx_2_1cqxlcpyrwy42lsaypvtautlpjr56duy4jp6638wpn4z7fa3jm2uz8q")
     "buy_coins"
     Bucket("xrd_bucket")
 ;
 TAKE_ALL_FROM_WORKTOP
-    Address("resource_tdx_2_1tkumff7k6gs92vszzcclqe3sj76ax706uswpumeufh5f8md0c49xgx")
+    Address("resource_tdx_2_1thkq0q8yu00axdelr8fvsnm0dg3j29v8m5z9fs6pcs73w5utnn8vht")
     Bucket("coin_bucket")
 ;
 CALL_METHOD
-    Address("component_tdx_2_1crkhanphyasmvgpdshsw39mg6dderhjayvdkmpzh7ssa9ald0tuucr")
+    Address("component_tdx_2_1cqxlcpyrwy42lsaypvtautlpjr56duy4jp6638wpn4z7fa3jm2uz8q")
     "buy_used_object"
     <RECEIPT_ID>u64
     <OWNER_ID>u64
@@ -493,14 +493,14 @@ Use this transaction to allow or disallow other users to rent an object you own.
 CALL_METHOD
     Address("<ACCOUNT_ADDRESS>")
     "create_proof_of_non_fungibles"
-    Address("resource_tdx_2_1n2m9vnd08kvfsyl2dlk8hy5ula5745m2q4xdrkxy3slttsw5mu4rhf")
+    Address("resource_tdx_2_1nfx748elwawshwwfrfwdrgxh6sz6hw3gp9jc286mtshu27vj6ecg0x")
     Array<NonFungibleLocalId>(NonFungibleLocalId("#<OBJECT_ID>#"))
 ;
 POP_FROM_AUTH_ZONE
     Proof("object_proof")
 ;
 CALL_METHOD
-    Address("component_tdx_2_1crkhanphyasmvgpdshsw39mg6dderhjayvdkmpzh7ssa9ald0tuucr")
+    Address("component_tdx_2_1cqxlcpyrwy42lsaypvtautlpjr56duy4jp6638wpn4z7fa3jm2uz8q")
     "allow_rent"
     Proof("object_proof")
     <ALLOW>
@@ -523,14 +523,14 @@ A renter can terminate the rent contract anytime by executing this transaction m
 CALL_METHOD
     Address("<ACCOUNT_ADDRESS>")
     "create_proof_of_non_fungibles"
-    Address("resource_tdx_2_1nfsa03aejkcq52vl7lhvsq6aqtdlzf5crjjn3cu05phk3kfa40dek0")
+    Address("resource_tdx_2_1nt5nh67lns6t2pp5uarwhla25aufp85400jk8tlxsl2z5j5vku7nr9")
     Array<NonFungibleLocalId>(NonFungibleLocalId("#<NON_FUNGIBLE_ID>#"))
 ;
 POP_FROM_AUTH_ZONE
     Proof("people_proof")
 ;   
 CALL_METHOD
-    Address("component_tdx_2_1crkhanphyasmvgpdshsw39mg6dderhjayvdkmpzh7ssa9ald0tuucr")
+    Address("component_tdx_2_1cqxlcpyrwy42lsaypvtautlpjr56duy4jp6638wpn4z7fa3jm2uz8q")
     "terminate_rent"
     Proof("people_proof")
     <OBJECT_ID>u64
@@ -541,3 +541,32 @@ CALL_METHOD
 `<NON_FUNGIBLE_ID>` The numeric identifier of the radixian NFT.  
 `<OBJECT_ID>` The numeric ID of the object to stop renting.  
 
+### Terminate an object sale
+
+A seller can withdraw the proceeds of the sale or cancel the sale by returning the receipt of the second-hand market by using this transaction.  
+
+```
+CALL_METHOD
+    Address("<ACCOUNT_ADDRESS>")
+    "withdraw_non_fungibles"
+    Address("resource_tdx_2_1nfz8csveaffxkcngwcp3pnp2ldrya268xke5q2eqgp0q30jm7rxm52")
+    Array<NonFungibleLocalId>(NonFungibleLocalId("#<RECEIPT_ID>#"))
+;
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_tdx_2_1nfz8csveaffxkcngwcp3pnp2ldrya268xke5q2eqgp0q30jm7rxm52")
+    Bucket("receipt_bucket")
+;
+CALL_METHOD
+    Address("component_tdx_2_1cqxlcpyrwy42lsaypvtautlpjr56duy4jp6638wpn4z7fa3jm2uz8q")
+    "close_object_sale"
+    Bucket("receipt_bucket")
+;
+CALL_METHOD
+    Address("<ACCOUNT_ADDRESS>")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
+```
+
+`<ACCOUNT_ADDRESS>` The account containing the receipt.  
+`<RECEIPT_ID>` The numeric ID of the receipt.  
