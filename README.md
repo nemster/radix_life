@@ -570,3 +570,139 @@ CALL_METHOD
 
 `<ACCOUNT_ADDRESS>` The account containing the receipt.  
 `<RECEIPT_ID>` The numeric ID of the receipt.  
+
+### Sell an NFT
+
+Allow players to buy a character you own.  
+This method returns a receipt that can be later used to withdraw the proceeds of the sale or the NFT (if no one bought it).  
+
+```
+CALL_METHOD
+    Address("<ACCOUNT_ADDRESS>")
+    "withdraw_non_fungibles"
+    Address("resource_tdx_2_1nt5nh67lns6t2pp5uarwhla25aufp85400jk8tlxsl2z5j5vku7nr9")
+    Array<NonFungibleLocalId>(NonFungibleLocalId("#<NON_FUNGIBLE_ID>#"))
+;
+TAKE_ALL_FROM_WORKTOP
+    Address(""resource_tdx_2_1nt5nh67lns6t2pp5uarwhla25aufp85400jk8tlxsl2z5j5vku7nr9)
+    Bucket("people_bucket")
+;
+CALL_METHOD
+    Address("component_tdx_2_1cqxlcpyrwy42lsaypvtautlpjr56duy4jp6638wpn4z7fa3jm2uz8q")
+    "sell_people"
+    Bucket("people_bucket")
+    <PRICE>u32
+;
+CALL_METHOD
+    Address("<ACCOUNT_ADDRESS>")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
+```
+
+`<ACCOUNT_ADDRESS>` The account containing the radixian who wants to deposit.  
+`<NON_FUNGIBLE_ID>` The numeric identifier of the radixian NFT.  
+`<PRICE>` The price at which the NFT is to be sold.  
+
+### Buy an NFT
+
+Buy a character using in game coins.  
+
+```
+CALL_METHOD
+    Address("<ACCOUNT_ADDRESS>")
+    "withdraw"
+    Address("resource_tdx_2_1thkq0q8yu00axdelr8fvsnm0dg3j29v8m5z9fs6pcs73w5utnn8vht")
+    Decimal("<COIN_AMOUNT>")
+;
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_tdx_2_1thkq0q8yu00axdelr8fvsnm0dg3j29v8m5z9fs6pcs73w5utnn8vht")
+    Bucket("coin_bucket")
+;
+CALL_METHOD
+    Address("component_tdx_2_1cqxlcpyrwy42lsaypvtautlpjr56duy4jp6638wpn4z7fa3jm2uz8q")
+    "buy_people"
+    <RECEIPT_ID>u64
+    Bucket("coin_bucket")
+;
+CALL_METHOD
+    Address("<ACCOUNT_ADDRESS>")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
+```
+
+`<ACCOUNT_ADDRESS>` The account address of the buyer.  
+`<COIN_AMOUNT>` The number of coin to spend.  
+`<RECEIPT_ID>` Numeric NFT id of the receipt for the sold character.  
+
+### Buy an NFT using XRD
+
+Buy a character paying in XRD.  
+
+```
+CALL_METHOD
+    Address("<ACCOUNT_ADDRESS>")
+    "withdraw"
+    Address("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc")
+    Decimal("<XRD_AMOUNT>")
+;
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc")
+    Bucket("xrd_bucket")
+;
+CALL_METHOD
+    Address("component_tdx_2_1cqxlcpyrwy42lsaypvtautlpjr56duy4jp6638wpn4z7fa3jm2uz8q")
+    "buy_coins"
+    Bucket("xrd_bucket")
+;
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_tdx_2_1thkq0q8yu00axdelr8fvsnm0dg3j29v8m5z9fs6pcs73w5utnn8vht")
+    Bucket("coin_bucket")
+;
+CALL_METHOD
+    Address("component_tdx_2_1cqxlcpyrwy42lsaypvtautlpjr56duy4jp6638wpn4z7fa3jm2uz8q")
+    "buy_people"
+    <RECEIPT_ID>u64
+    Bucket("coin_bucket")
+;
+CALL_METHOD
+    Address("<ACCOUNT_ADDRESS>")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
+```
+
+`<ACCOUNT_ADDRESS>` The account address of the buyer.  
+`<XRD_AMOUNT>` The number of XRD to spend.  
+`<RECEIPT_ID>` Numeric NFT id of the receipt for the sold character.  
+
+### Terminate an NFT sale
+
+A seller can withdraw the proceeds of the sale or cancel the sale by returning the receipt using this transaction.  
+
+```
+CALL_METHOD
+    Address("<ACCOUNT_ADDRESS>")
+    "withdraw_non_fungibles"
+    Address("resource_tdx_2_1n2kfv4up5ppfmvnums0pe4v03ajd5atdglfgzchq8gmswckmf2ew70")
+    Array<NonFungibleLocalId>(NonFungibleLocalId("#<RECEIPT_ID>#"))
+;
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_tdx_2_1n2kfv4up5ppfmvnums0pe4v03ajd5atdglfgzchq8gmswckmf2ew70")
+    Bucket("receipt_bucket")
+;
+CALL_METHOD
+    Address("component_tdx_2_1cqxlcpyrwy42lsaypvtautlpjr56duy4jp6638wpn4z7fa3jm2uz8q")
+    "close_people_sale"
+    Bucket("receipt_bucket")
+;
+CALL_METHOD
+    Address("<ACCOUNT_ADDRESS>")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
+```
+
+`<ACCOUNT_ADDRESS>` The account containing the receipt.  
+`<RECEIPT_ID>` The numeric ID of the receipt.  
