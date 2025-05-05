@@ -584,7 +584,7 @@ CALL_METHOD
     Array<NonFungibleLocalId>(NonFungibleLocalId("#<NON_FUNGIBLE_ID>#"))
 ;
 TAKE_ALL_FROM_WORKTOP
-    Address(""resource_tdx_2_1nt5nh67lns6t2pp5uarwhla25aufp85400jk8tlxsl2z5j5vku7nr9)
+    Address("resource_tdx_2_1nt5nh67lns6t2pp5uarwhla25aufp85400jk8tlxsl2z5j5vku7nr9")
     Bucket("people_bucket")
 ;
 CALL_METHOD
